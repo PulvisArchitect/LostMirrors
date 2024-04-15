@@ -1,4 +1,5 @@
 import { app, BrowserWindow, globalShortcut } from 'electron';
+import electronDl from 'electron-dl';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import Store from 'electron-store';
@@ -15,20 +16,23 @@ store.set('applicationUrl',
 const settingsFilePath = path.join(path.resolve('.'),
                                    'settings.json');
 
-let settings = {
-    'applicationUrl': 'https://pulvis.jp/HyperbolicKaleidoscope',
-    'params': {
-        'debug': false,
-        'defaultScale': 4.5
-    }
-};
+let settings;
 
 if(fs.existsSync(settingsFilePath)) {
     const buffer = fs.readFileSync(settingsFilePath);
     settings = JSON.parse(buffer.toString());
 } else {
+    const defaultSettings = {
+        'applicationUrl': 'https://pulvis.jp/HyperbolicKaleidoscope',
+        'params': {
+            debug: false,
+            defaultScale: 4.5,
+            frameDelayMillis: 0,
+        }
+    };
+    settings = defaultSettings;
     fs.writeFileSync(settingsFilePath,
-                     Buffer.from(JSON.stringify(settings)));
+                     Buffer.from(JSON.stringify(settings, null, '    ')));
 }
 
 function composeURL(settings) {
@@ -36,6 +40,8 @@ function composeURL(settings) {
     const searchParams = new URLSearchParams(settings.params);
     return url + '?'+ searchParams.toString();
 }
+
+electronDl();
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -51,7 +57,7 @@ const createWindow = () => {
         alwaysOnTop: true
     });
 
-    win.loadURL(store.get('applicationUrl'));
+    win.loadURL(composeURL(settings));
 };
 
 

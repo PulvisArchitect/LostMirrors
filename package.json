@@ -13,6 +13,7 @@
         "make": "electron-forge make"
     },
     "dependencies": {
+        "electron-dl": "^3.5.2",
         "electron-squirrel-startup": "^1.0.0",
         "electron-store": "^8.2.0",
         "typescript": "^5.4.2",
