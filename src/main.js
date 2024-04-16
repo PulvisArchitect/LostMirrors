@@ -15,6 +15,7 @@ store.set('applicationUrl',
 
 const settingsFilePath = path.join(path.resolve('.'),
                                    'settings.json');
+app.commandLine.appendSwitch ("disable-http-cache");
 
 let settings;
 
@@ -47,16 +48,13 @@ const createWindow = () => {
     const win = new BrowserWindow({
         width: 800,
         height: 600,
-        webPreferences: {
-            preload: path.join(__dirname, 'preload.js')
-        },
         fullscreen: true,
         autoHideMenuBar: true,
         frane: false,
         kiosk: true,
         alwaysOnTop: true
     });
-
+    //win.webContents.openDevTools();
     win.loadURL(composeURL(settings));
 };
 
