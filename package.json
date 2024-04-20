@@ -18,7 +18,8 @@
         "electron-squirrel-startup": "^1.0.0",
         "prettier": "^3.2.5",
         "typescript": "^5.4.2",
-        "typescript-language-server": "^4.3.3"
+        "typescript-language-server": "^4.3.3",
+        "url-exist": "^3.0.1"
     },
     "devDependencies": {
         "@electron-forge/cli": "^7.3.0",

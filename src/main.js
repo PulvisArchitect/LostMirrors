@@ -3,13 +3,14 @@ import electronDl from 'electron-dl';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import urlExist from 'url-exist';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-store.set('applicationUrl', 'https://pulvis.jp/HyperbolicKaleidoscope');
+const cwd = path.resolve('.');
 
-const settingsFilePath = path.join(path.resolve('.'), 'settings.json');
+const settingsFilePath = path.join(cwd, 'settings.json');
 app.commandLine.appendSwitch('disable-http-cache');
 
 let settings;
@@ -20,6 +21,7 @@ if (fs.existsSync(settingsFilePath)) {
 } else {
     const defaultSettings = {
         applicationUrl: 'https://pulvis.jp/HyperbolicKaleidoscope',
+        fallbackFilePath: '',
         params: {
             debug: false,
             defaultScale: 4.5,
@@ -35,13 +37,23 @@ if (fs.existsSync(settingsFilePath)) {
 
 function composeURL(settings) {
     const url = settings['applicationUrl'];
-    const searchParams = new URLSearchParams(settings.params);
+    const searchParams = new URLSearchParams({
+        'params': btoa(JSON.stringify(settings.params))
+    });
     return url + '?' + searchParams.toString();
 }
 
 electronDl();
 
-const createWindow = () => {
+const url = composeURL(settings);
+let isURLValid = false;
+try {
+    isURLValid = await urlExist(url);
+} catch (error) {
+    isURLValid = false;
+}
+
+async function createWindow(){
     const win = new BrowserWindow({
         width: 800,
         height: 600,
@@ -51,8 +63,17 @@ const createWindow = () => {
         kiosk: true,
         alwaysOnTop: true,
     });
-    //win.webContents.openDevTools();
-    win.loadURL(composeURL(settings));
+    win.webContents.openDevTools();
+    if(isURLValid){
+        win.loadURL(composeURL(settings));
+    } else {
+        win.loadFile(path.join(cwd, settings.fallbackFilePath),
+                     {
+                         query: {
+                             params: btoa(JSON.stringify(settings.params))
+                         }
+                     });
+    }
 };
 
 app.whenReady().then(() => {
