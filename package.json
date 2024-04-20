@@ -10,12 +10,13 @@
     "scripts": {
         "start": "electron-forge start",
         "package": "electron-forge package",
-        "make": "electron-forge make"
+        "make": "electron-forge make",
+        "fix": "prettier -w ."
     },
     "dependencies": {
         "electron-dl": "^3.5.2",
         "electron-squirrel-startup": "^1.0.0",
-        "electron-store": "^8.2.0",
+        "prettier": "^3.2.5",
         "typescript": "^5.4.2",
         "typescript-language-server": "^4.3.3"
     },

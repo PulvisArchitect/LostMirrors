@@ -2,44 +2,41 @@ import { app, BrowserWindow, globalShortcut } from 'electron';
 import electronDl from 'electron-dl';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import Store from 'electron-store';
 import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const store = new Store();
+store.set('applicationUrl', 'https://pulvis.jp/HyperbolicKaleidoscope');
 
-store.set('applicationUrl',
-          'https://pulvis.jp/HyperbolicKaleidoscope');
-
-const settingsFilePath = path.join(path.resolve('.'),
-                                   'settings.json');
-app.commandLine.appendSwitch ("disable-http-cache");
+const settingsFilePath = path.join(path.resolve('.'), 'settings.json');
+app.commandLine.appendSwitch('disable-http-cache');
 
 let settings;
 
-if(fs.existsSync(settingsFilePath)) {
+if (fs.existsSync(settingsFilePath)) {
     const buffer = fs.readFileSync(settingsFilePath);
     settings = JSON.parse(buffer.toString());
 } else {
     const defaultSettings = {
-        'applicationUrl': 'https://pulvis.jp/HyperbolicKaleidoscope',
-        'params': {
+        applicationUrl: 'https://pulvis.jp/HyperbolicKaleidoscope',
+        params: {
             debug: false,
             defaultScale: 4.5,
             frameDelayMillis: 0,
-        }
+        },
     };
     settings = defaultSettings;
-    fs.writeFileSync(settingsFilePath,
-                     Buffer.from(JSON.stringify(settings, null, '    ')));
+    fs.writeFileSync(
+        settingsFilePath,
+        Buffer.from(JSON.stringify(settings, null, '    ')),
+    );
 }
 
 function composeURL(settings) {
     const url = settings['applicationUrl'];
     const searchParams = new URLSearchParams(settings.params);
-    return url + '?'+ searchParams.toString();
+    return url + '?' + searchParams.toString();
 }
 
 electronDl();
@@ -52,32 +49,30 @@ const createWindow = () => {
         autoHideMenuBar: true,
         frane: false,
         kiosk: true,
-        alwaysOnTop: true
+        alwaysOnTop: true,
     });
     //win.webContents.openDevTools();
     win.loadURL(composeURL(settings));
 };
 
-
 app.whenReady().then(() => {
     createWindow();
     app.on('activate', () => {
-        if (BrowserWindow.getAllWindows().length === 0) createWindow()
+        if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
 
     const ret = globalShortcut.register('ctrl+q', () => {
         app.quit();
     });
     if (!ret) {
-        console.log('registration failed')
-    };
+        console.log('registration failed');
+    }
 });
 
 app.on('will-quit', () => {
-    globalShortcut.unregisterAll()
+    globalShortcut.unregisterAll();
 });
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit()
+    if (process.platform !== 'darwin') app.quit();
 });
- 
