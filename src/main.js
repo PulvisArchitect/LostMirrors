@@ -53,17 +53,24 @@ try {
     isURLValid = false;
 }
 
-async function createWindow(){
+await postMessage(settings.params.logging,
+                  'Lost Mirrorsが起動しました. ').catch((error) => {
+                      console.error(error);
+                  });
+
+function createWindow(){
     const win = new BrowserWindow({
         width: 800,
         height: 600,
         fullscreen: true,
         autoHideMenuBar: true,
-        frane: false,
+        frame: false,
         kiosk: true,
         alwaysOnTop: true,
     });
-    win.webContents.openDevTools();
+    if(settings.enableDevTools) {
+        win.webContents.openDevTools();
+    }
     if(isURLValid){
         win.loadURL(composeURL(settings));
     } else {
@@ -76,13 +83,30 @@ async function createWindow(){
     }
 };
 
+/**
+ * @param {object} loggingSettings
+ * @param {string} message
+ */
+async function postMessage(loggingSettings, message){
+    const response = await fetch(loggingSettings.url, {
+        method: 'POST',
+        body: JSON.stringify({
+            text: `${loggingSettings.clientName}: ${message}`
+        })
+    });
+}
+
 app.whenReady().then(() => {
     createWindow();
-    app.on('activate', () => {
+    app.on('activate', async () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
 
-    const ret = globalShortcut.register('ctrl+q', () => {
+    const ret = globalShortcut.register('ctrl+q', async () => {
+        await postMessage(settings.params.logging,
+            'Lost Mirrorsが終了しました. ').catch((error) => {
+                console.error(error);
+            });
         app.quit();
     });
     if (!ret) {
@@ -90,10 +114,10 @@ app.whenReady().then(() => {
     }
 });
 
-app.on('will-quit', () => {
+app.on('will-quit', async () => {
     globalShortcut.unregisterAll();
 });
 
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
     if (process.platform !== 'darwin') app.quit();
 });
