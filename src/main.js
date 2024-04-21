@@ -20,13 +20,18 @@ if (fs.existsSync(settingsFilePath)) {
     settings = JSON.parse(buffer.toString());
 } else {
     const defaultSettings = {
-        applicationUrl: 'https://pulvis.jp/HyperbolicKaleidoscope',
-        fallbackFilePath: '',
-        params: {
-            debug: false,
-            defaultScale: 4.5,
-            frameDelayMillis: 0,
-        },
+        "applicationUrl": "https://pulvis.jp/HyperbolicKaleidoscope",
+        "fallbackFilePath": "../HyperbolicKaleidoscope/docs/index.html",
+        "enableDevTools": false,
+        "params": {
+            "debug": false,
+            "scene": {
+            },
+            "logging": {
+                "url": "https://hooks.slack.com/services/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",
+                "clientName": "machine1"
+            }
+        }
     };
     settings = defaultSettings;
     fs.writeFileSync(
